@@ -1,9 +1,10 @@
-#include<iostream>
-
-using namespace std;
+#include "Neuron.h"
 
 int main()
 {
-	cout<<"~~All clear~~"<<endl;
+	Neuron* simone = new Neuron;
+	simone->PrintId();
+	delete(simone);//No memory leak
+	std::cout<<"~~All clear~~"<<std::endl;
 	return 0;
 }
