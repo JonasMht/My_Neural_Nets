@@ -17,6 +17,7 @@ public:
   /*Functions*/
   void Update();
   void PrintId();
+  void changeId(int x, int y, int z);
 
 };
 
