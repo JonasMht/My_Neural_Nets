@@ -1,2 +1,2 @@
-g++ -o exe.exe main.cpp Neuron.cpp Source.cpp -Wall 
+g++ -o exe.exe main.cpp Construct.cpp Source.cpp -Wall 
 exe.exe

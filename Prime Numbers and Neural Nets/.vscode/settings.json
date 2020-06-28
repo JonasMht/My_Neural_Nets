@@ -40,5 +40,6 @@
         "cctype": "cpp",
         "string": "cpp",
         "fstream": "cpp"
-    }
+    },
+    "editor.detectIndentation": false
 }

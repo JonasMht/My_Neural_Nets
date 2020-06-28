@@ -1,6 +1,5 @@
 #include "Source.h"
 
-
 void printBoolList(list<bool> bList)
 {
     cout << "[";
@@ -34,9 +33,9 @@ list<bool> IntTobList(int integer)
     list<bool> bList;
     while (integer > 0)
     {
-        bList.push_front(integer%2);
-        integer = integer/2;
+        bList.push_front(integer % 2);
+        integer = integer / 2;
     }
-    
+
     return bList;
 }
