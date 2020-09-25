@@ -10,20 +10,12 @@ Neuron connections(L-1 neurons)(weights, L-1 addrs)
 
 #include "network.h"
 
-using namespace std;
-
-/*sigmoid function compresses all values in 0 to 1 range.
-  It is also known as activation function.*/
-double sigmoid(double x){ return 1 / (1 + exp(-x)); }
-// Derivative of activation function
-double dSigmoid(double x) { return x * (1 - x); }
-
 
 int main()
 {
   clock_t start = clock();
 
-  list<unsigned int> layer_format; // {5,16,16,5} each element represents a layer and the value the amount of neurons
+  list<uint> layer_format; // {5,16,16,5} each element represents a layer and the value the amount of neurons
   layer_format.push_back(2);
   layer_format.push_back(16);
   layer_format.push_back(16);

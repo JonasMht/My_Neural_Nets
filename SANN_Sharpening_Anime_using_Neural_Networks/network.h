@@ -8,11 +8,11 @@ class NetworkClass
 private:
     list<list<double>> neuron_layers; // a neuron is a node that holds a real number
     list<list<double>> weight_layers; // between each layer there are as much weights as the dot product of both layer's neurons
-    // weights for a given list: 
+    // weights for a given layer: each neuron from the second layer, dot product the neurons of the first layer.
     list<double> bias_layers; // each layer has its won bias used in the sigmoid function when forward feeding to the given layer
 
 public:
-    NetworkClass(list<unsigned int> layer_format); // constructor
+    NetworkClass(list<uint> layer_format); // constructor
     ~NetworkClass(); // destructor
 
     void get_info();
