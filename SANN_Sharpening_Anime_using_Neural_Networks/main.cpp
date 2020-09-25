@@ -23,7 +23,7 @@ int main()
 {
   clock_t start = clock();
 
-  list<int> layer_format; // {5,16,16,5} each element represents a layer and the value the amount of neurons
+  list<unsigned int> layer_format; // {5,16,16,5} each element represents a layer and the value the amount of neurons
   layer_format.push_back(2);
   layer_format.push_back(16);
   layer_format.push_back(16);
