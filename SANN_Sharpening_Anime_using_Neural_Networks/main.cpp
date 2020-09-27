@@ -8,6 +8,11 @@ Neuron a = sigmoid(E(w*a)+bias)
 Neuron connections(L-1 neurons)(weights, L-1 addrs)
 */
 
+
+/*
+Important note: create a neural network that corrects a given rectangle and patch multiple of them together to work on larger images.
+*/
+
 #include "network.h"
 
 
@@ -20,9 +25,17 @@ int main()
   layer_format.push_back(16);
   layer_format.push_back(16);
   layer_format.push_back(2);
-
   NetworkClass nn(layer_format);
   nn.get_info();
+
+  list<double> input;
+  input.push_back(1.5);
+  input.push_back(0.5);
+
+  print_double_list(input);
+  list<double> out = nn.test(input);
+  print_double_list(out);
+  cout<<"Error : "<< nn.meanSquaredError(out, input) <<"\n";
 
 
   clock_t end = clock();
