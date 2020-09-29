@@ -29,13 +29,20 @@ int main()
   nn.get_info();
 
   list<double> input;
-  input.push_back(1.5);
+  input.push_back(0.5);
   input.push_back(0.5);
 
   print_double_list(input);
   list<double> out = nn.test(input);
   print_double_list(out);
-  cout<<"Error : "<< nn.meanSquaredError(out, input) <<"\n";
+  cout<<"Cost of nn : "<< nn.cost(out, input) <<"\n";
+  list<double> a;
+  a.push_back(0.01);
+  a.push_back(0.99);
+  list<double> b;
+  b.push_back(0.7514);
+  b.push_back(0.7729);
+  cout<<"Cost : "<< nn.cost(a, b) <<"\n";
 
 
   clock_t end = clock();

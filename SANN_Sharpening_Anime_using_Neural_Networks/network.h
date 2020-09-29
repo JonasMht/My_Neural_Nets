@@ -6,29 +6,35 @@
 class NetworkClass
 {
 private:
-    list<list<double>> neuron_layers; // a neuron is a node that holds a real number
-    list<list<double>> weights_L0_L1; // between each layer there are as much weights as the dot product of both layer's neurons
+    list<uint> layer_format; // format of the nn with one element for each layer and the element giving the amount of neurons
+
+    list<list<double>> n_activ_layer; // a neuron is a node that holds a real number
+    list<list<double>> n_bias_layers; // each neuron has its won bias used in the sigmoid function when forward feeding to the given layer
+    list<list<double>> interlayer_weights; // between each layer there are as much weights as the dot product of both layer's neurons
     // weights for a given layer: each neuron from the second layer, dot product the neurons of the first layer.
-    list<double> bias_layers; // each layer has its won bias used in the sigmoid function when forward feeding to the given layer
+    
+
+    /*averaged change of each parameter to affect at the end of a training session with training batches (mini)*/
+    list<list<double>> n_bias_layers_change; // average change to the biases
+    list<list<double>> interlayer_weights_change; // average change to the weights
 
     double learning_rate = 0.001;
 
 public:
-    NetworkClass(list<uint> layer_format, double learning_r = 0.001); // constructor
+    NetworkClass(list<uint> layer_format, double learning_rate = 0.001); // constructor
     ~NetworkClass(); // destructor
 
     void get_info();
 
-    double cost(double computed_output, double desired_output); // the error function defines the error between the input and desired output.
-    double dError(double computed_output, double desired_output); // dericative of the error function
-    double meanSquaredError(list<double> computed_output, list<double> desired_output); // loss of one training sample
-    double dSquaredErrorLoss(double computed_output, double desired_output, double former_n_a);
-    double overallSquaredErrorLoss(list<list<double>> computed_output, list<list<double>> desired_output); // loss over multiple training samples
+    double error(double computed_output, double desired_output); // the error function defines the error between the input and desired output.
+    double dCost_bias(double computed_output, double desired_output);
+    double dCost_weight(double dC_dZ, double former_neuron_output);
+    double cost(list<double> computed_output, list<double> desired_output); // loss of one training sample
 
-    void feed_forward(list<double> &first_layer, list<double> &second_layer, list<double> &weights, double bias);
+    void feed_forward(list<double> &first_n_activ_layer, list<double> &second_n_activ_layer, list<double> &weights, list<double> &second_n_bias_layers);
     list<double> test(list<double> input); // run neural network for a given input and return the output.
-    void backprop(); // backprop the nn for an awaited result using the cost function changing the weight.
-    void train(); // train the nn on a mini batch using backprop.
+    void backprop(list<double> desired_output); // backprop the nn for an awaited result using the cost function changing the weight.
+    void train_on_batch(list<list<double>> training_input, list<list<double>> desired_output); // train the nn on a mini batch using backprop.
 
 
 };
