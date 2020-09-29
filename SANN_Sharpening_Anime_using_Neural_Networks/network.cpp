@@ -2,7 +2,6 @@
 
 NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
 {
-    this->layer_format = layer_format;
     this->learning_rate = learning_rate;
     int former_layer_n = 0;
     for(auto i=layer_format.begin();i!=layer_format.end();i++)
@@ -10,15 +9,16 @@ NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
         uint n = *i;
         /* add neurons to layer */
         list<double> layer_activations(n ,0.0); // add a neurons of activation 0
-        list<double> layer_biases(n ,0.0); // add a neurons of activation 0
         this->n_activ_layer.push_back(layer_activations);
-        this->n_bias_layers.push_back(layer_biases);
+        
 
         /* add weights between layers */
         if (former_layer_n != 0) // if it isn't the first layer
         {
             list<double> between_layers_weights(n*former_layer_n, 0.0); // initiate weights at 0 // could init at random (tests needed)
             this->interlayer_weights.push_back(between_layers_weights);
+            list<double> layer_biases(n ,0.0);
+            this->n_bias_layers.push_back(layer_biases);
         }
         former_layer_n = n;
     }
@@ -74,24 +74,23 @@ double NetworkClass::cost(list<double> computed_output, list<double> desired_out
     return c;
 }
 
-void NetworkClass::feed_forward(list<double> &first_n_activ_layer, list<double> &second_n_activ_layer, list<double> &weights, list<double> &second_n_bias_layers)
+void NetworkClass::feed_forward(list<double> &L0, list<double> &L1, list<double> &W_L0_L1, list<double> &L1_bias)
 {
     double z = 0.0;
-    uint n_fl = first_n_activ_layer.size();
-    uint n_sl = second_n_activ_layer.size();
-    list<double>::iterator sl = second_n_activ_layer.begin();
-    list<double>::iterator sl_b = second_n_bias_layers.begin();
-    list<double>::iterator w_it = weights.begin();
-    for(auto sl=second_n_activ_layer.begin();sl!=second_n_activ_layer.end();sl++, sl_b++)
+    list<double>::iterator N1 = L1.begin();
+    list<double>::iterator B1 = L1_bias.begin();
+    list<double>::iterator W_N0_N1 = W_L0_L1.begin();
+    for(;N1!=L1.end();N1++, B1++)
     {
-        for(auto fl=first_n_activ_layer.begin();fl!=first_n_activ_layer.end();fl++)
+        list<double>::iterator N0 = L0.begin();
+        for(;N0!=L0.end();N0++)
         {
-            z += (*w_it) * (*fl);
-            w_it++;
+            z += (*W_N0_N1) * (*N0);
+            W_N0_N1++;
         }
-        z += *sl_b;
-        (*sl) = sigmoid(z);
-        cout<<z<<" bias :"<<*sl_b<<", activation : "<<sigmoid(z)<<"\n";
+        z += *B1;
+        (*N1) = sigmoid(z);
+        cout<<z<<" bias :"<<*B1<<", activation : "<<sigmoid(z)<<"\n";
         z = 0.0;
     }
 }
@@ -105,7 +104,7 @@ list<double> NetworkClass::test(list<double> input)
     list<list<double>>::iterator L0 = this->n_activ_layer.begin();
     list<list<double>>::iterator L1 = this->n_activ_layer.begin();
     list<list<double>>::iterator B1 = this->n_bias_layers.begin();
-    L1++; B1++;
+    L1++;
     list<list<double>>::iterator W_L0_L1 = interlayer_weights.begin();
     
     for(;L1!=this->n_activ_layer.end();L0++,L1++,W_L0_L1++,B1++)
@@ -117,28 +116,36 @@ list<double> NetworkClass::test(list<double> input)
 
 void NetworkClass::backprop(list<double> desired_output)
 {
-    if (this->n_bias_layers_change.empty())
+    if (this->n_bias_layers_change.empty()) // no parameter change registered
     {
-        int former_layer_n = 0;
-        for(auto i=this->layer_format.begin();i!=this->layer_format.end();i++)
-        {
-            uint n = *i;
-            /* biase change */
-            list<double> layer_biases(n ,0.0);
-            this->n_bias_layers_change.push_back(layer_biases);
+        list<list<double>>::iterator L0 = this->n_activ_layer.end();
+        L0--;
+        list<list<double>>::iterator L1 = this->n_activ_layer.end();
+        list<list<double>>::iterator W_L0_L1 = interlayer_weights.end();
 
-            /* add weights between layers */
-            if (former_layer_n != 0) // if it isn't the first layer
+        list<list<double>>::iterator B1_change = this->n_bias_layers_change.end();
+        list<list<double>>::iterator W_L0_L1_change = this->interlayer_weights_change.end();
+
+
+        for(;L0!=this->n_activ_layer.begin(); L0--, L1--, W_L0_L1--, W_L0_L1_change-- ,B1_change--)
+        {
+            list<double>::iterator N1 = L1->begin();
+            list<double>::iterator W_N0_N1 = W_L0_L1->begin();
+            for(;N1!=L1->end();N1++)
             {
-                list<double> between_layers_weights(n*former_layer_n, 0.0); // initiate weights at 0 // could init at random (tests needed)
-                this->interlayer_weights_change.push_back(between_layers_weights);
+                list<double>::iterator N0 = L0->begin();
+                for(;N0!=L0->end(); N0++)
+                {
+                    double dC_dW = dCost_bias()
+                    B1_change->push_back();
+                    W_L0_L1_change->push_back();
+                    W_N0_N1++;
+                }
             }
-            former_layer_n = n;
         }
     }
     
-    list<list<double>>::iterator bl_change_it = this->n_bias_layers_change.begin();
-    list<list<double>>::iterator wl_change_it = this->interlayer_weights_change.begin();
+    
 }
 
 void NetworkClass::train_on_batch(list<list<double>> training_input, list<list<double>> desired_output)

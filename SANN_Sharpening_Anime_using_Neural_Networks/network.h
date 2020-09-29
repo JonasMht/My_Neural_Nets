@@ -6,7 +6,6 @@
 class NetworkClass
 {
 private:
-    list<uint> layer_format; // format of the nn with one element for each layer and the element giving the amount of neurons
 
     list<list<double>> n_activ_layer; // a neuron is a node that holds a real number
     list<list<double>> n_bias_layers; // each neuron has its won bias used in the sigmoid function when forward feeding to the given layer
@@ -31,7 +30,7 @@ public:
     double dCost_weight(double dC_dZ, double former_neuron_output);
     double cost(list<double> computed_output, list<double> desired_output); // loss of one training sample
 
-    void feed_forward(list<double> &first_n_activ_layer, list<double> &second_n_activ_layer, list<double> &weights, list<double> &second_n_bias_layers);
+    void feed_forward(list<double> &L0, list<double> &L1, list<double> &W_L0_L1, list<double> &L1_bias);
     list<double> test(list<double> input); // run neural network for a given input and return the output.
     void backprop(list<double> desired_output); // backprop the nn for an awaited result using the cost function changing the weight.
     void train_on_batch(list<list<double>> training_input, list<list<double>> desired_output); // train the nn on a mini batch using backprop.
