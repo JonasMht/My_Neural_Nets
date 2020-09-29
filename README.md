@@ -1,1 +1,1 @@
-Testing neural networks - A student's attempts to undestand nn and bp /!\ work in progress
+Testing neural networks - A student's attempts at understanding nn and bp /!\ work in progress
