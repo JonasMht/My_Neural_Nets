@@ -175,7 +175,10 @@ void NetworkClass::load_nn(string file_path)
                 }
                 else
                 {
-                    cout<<setprecision(10)<<stod(word)<<str_len<<"\n";
+                    if (word.at(0) != '#')
+                    {
+                        cout<<setprecision(10)<<stod(word)<<str_len<<"\n";
+                    }
                     word = "";
                 }
             }
