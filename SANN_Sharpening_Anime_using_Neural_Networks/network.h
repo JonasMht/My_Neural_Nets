@@ -35,6 +35,15 @@ public:
     void backprop(list<double> desired_output); // backprop the nn for an awaited result using the cost function changing the weight.
     void train_on_batch(list<list<double>> training_input, list<list<double>> desired_output); // train the nn on a mini batch using backprop.
 
+    /* Save management */
+    /*
+    File format:
+    lines about weight parameters
+    lines about the bias parameters,
+    */
+   
+    void load_nn(string file_path);
+    void save_nn(string file_path);
 
 };
 

@@ -15,7 +15,7 @@ NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
         /* add weights between layers */
         if (former_layer_n != 0) // if it isn't the first layer
         {
-            list<double> between_layers_weights(n*former_layer_n, 0.0); // initiate weights at 0 // could init at random (tests needed)
+            list<double> between_layers_weights(n*former_layer_n, 5.123456789); // initiate weights at 0 // could init at random (tests needed)
             this->interlayer_weights.push_back(between_layers_weights);
             list<double> layer_biases(n ,0.0);
             this->n_bias_layers.push_back(layer_biases);
@@ -90,7 +90,6 @@ void NetworkClass::feed_forward(list<double> &L0, list<double> &L1, list<double>
         }
         z += *B1;
         (*N1) = sigmoid(z);
-        cout<<z<<" bias :"<<*B1<<", activation : "<<sigmoid(z)<<"\n";
         z = 0.0;
     }
 }
@@ -121,7 +120,7 @@ void NetworkClass::backprop(list<double> desired_output)
         list<list<double>>::iterator L0 = this->n_activ_layer.end();
         L0--;
         list<list<double>>::iterator L1 = this->n_activ_layer.end();
-        list<list<double>>::iterator W_L0_L1 = interlayer_weights.end();
+        list<list<double>>::iterator W_L0_L1 = this->interlayer_weights.end();
 
         list<list<double>>::iterator B1_change = this->n_bias_layers_change.end();
         list<list<double>>::iterator W_L0_L1_change = this->interlayer_weights_change.end();
@@ -136,9 +135,9 @@ void NetworkClass::backprop(list<double> desired_output)
                 list<double>::iterator N0 = L0->begin();
                 for(;N0!=L0->end(); N0++)
                 {
-                    double dC_dW = dCost_bias()
-                    B1_change->push_back();
-                    W_L0_L1_change->push_back();
+                    //double dC_dW = dCost_bias()
+                    //B1_change->push_back();
+                    //W_L0_L1_change->push_back();
                     W_N0_N1++;
                 }
             }
@@ -151,4 +150,80 @@ void NetworkClass::backprop(list<double> desired_output)
 void NetworkClass::train_on_batch(list<list<double>> training_input, list<list<double>> desired_output)
 {
 
+}
+
+
+/* Save management */
+void NetworkClass::load_nn(string file_path)
+{
+    fstream file;
+
+    file.open(file_path, fstream::in);
+    string line;
+    if (file.is_open())
+    {
+        while (getline(file, line))
+        {
+            string word = "";
+            uint str_len = line.length();
+            for (int it=0; it<str_len;it++)
+            {
+                char c = line.at(it);
+                if (c != ',' && c != ';')
+                {
+                    word += c;
+                }
+                else
+                {
+                    cout<<setprecision(10)<<stod(word)<<str_len<<"\n";
+                    word = "";
+                }
+            }
+        }
+        file.close();
+    }
+}
+void NetworkClass::save_nn(string file_path)
+{
+    fstream file;
+
+    file.open(file_path,fstream::out);
+    if (file.is_open())
+    {
+
+        file << "#START_NN_SAVE;\n";
+
+        file << "#START_WEIGHTS;\n";
+        list<list<double>>::iterator WL = this->interlayer_weights.begin();
+        for (;WL!=this->interlayer_weights.end(); WL++)
+        {
+            list<double>::iterator w = WL->begin();
+            for (;w!=WL->end();)
+            {
+                file << setprecision(10) << *w;
+                w++;
+                if (w!=WL->end()) file << ',';
+            }
+            file << ";\n";
+        }
+        file << "#END_WEIGHTS;\n";
+        file << "#START_BIASES;\n";
+        list<list<double>>::iterator BL = this->n_bias_layers.begin();
+        for (;BL!=this->n_bias_layers.end(); BL++)
+        {
+            list<double>::iterator b = BL->begin();
+            for (;b!=BL->end();)
+            {
+                file << setprecision(10) << *b;
+                b++;
+                if (b!=BL->end()) file << ',';
+            }
+            file << ";\n";
+        }
+        file << "#END_BIASES;\n";
+
+        file << "#END_NN_SAVE;\n";
+
+        file.close();
+    }
 }

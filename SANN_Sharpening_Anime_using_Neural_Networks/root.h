@@ -2,9 +2,11 @@
 #define ROOT_H
 
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include <time.h>
 #include <list>
+#include <iomanip> // for lossless double to string conversion
 
 using namespace std;
 

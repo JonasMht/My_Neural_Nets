@@ -20,6 +20,7 @@ int main()
 {
   clock_t start = clock();
 
+
   list<uint> layer_format; // {5,16,16,5} each element represents a layer and the value the amount of neurons
   layer_format.push_back(2);
   layer_format.push_back(16);
@@ -36,14 +37,12 @@ int main()
   list<double> out = nn.test(input);
   print_double_list(out);
   cout<<"Cost of nn : "<< nn.cost(out, input) <<"\n";
-  list<double> a;
-  a.push_back(0.01);
-  a.push_back(0.99);
-  list<double> b;
-  b.push_back(0.7514);
-  b.push_back(0.7729);
-  cout<<"Cost : "<< nn.cost(a, b) <<"\n";
 
+
+  //save nn
+  nn.save_nn("save1.txt");
+  //load nn
+  nn.load_nn("save1.txt");
 
   clock_t end = clock();
   cout<<"\nFinished execution, it took "<<(float)(end-start)/(CLOCKS_PER_SEC)<<" sec.\n";
