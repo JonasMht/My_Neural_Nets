@@ -43,6 +43,8 @@ int main()
   nn.save_nn("save1.txt");
   //load nn
   nn.load_nn("save1.txt");
+  //nn.save_nn("save1.txt");
+  nn.get_info();
 
   clock_t end = clock();
   cout<<"\nFinished execution, it took "<<(float)(end-start)/(CLOCKS_PER_SEC)<<" sec.\n";

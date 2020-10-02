@@ -7,6 +7,8 @@ class NetworkClass
 {
 private:
 
+    list<uint> layer_format; // each element represents a layer and the value of each elements represent the amout of neurons
+
     list<list<double>> n_activ_layer; // a neuron is a node that holds a real number
     list<list<double>> n_bias_layers; // each neuron has its won bias used in the sigmoid function when forward feeding to the given layer
     list<list<double>> interlayer_weights; // between each layer there are as much weights as the dot product of both layer's neurons
@@ -27,7 +29,7 @@ public:
 
     double error(double computed_output, double desired_output); // the error function defines the error between the input and desired output.
     double dCost_bias(double computed_output, double desired_output);
-    double dCost_weight(double dC_dZ, double former_neuron_output);
+    double dCost_weight(double dC_dZ, double former_neuron_a);
     double cost(list<double> computed_output, list<double> desired_output); // loss of one training sample
 
     void feed_forward(list<double> &L0, list<double> &L1, list<double> &W_L0_L1, list<double> &L1_bias);
@@ -41,7 +43,7 @@ public:
     lines about weight parameters
     lines about the bias parameters,
     */
-   
+
     void load_nn(string file_path);
     void save_nn(string file_path);
 

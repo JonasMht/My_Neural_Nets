@@ -2,6 +2,7 @@
 
 NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
 {
+    this->layer_format = layer_format;
     this->learning_rate = learning_rate;
     int former_layer_n = 0;
     for(auto i=layer_format.begin();i!=layer_format.end();i++)
@@ -15,7 +16,7 @@ NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
         /* add weights between layers */
         if (former_layer_n != 0) // if it isn't the first layer
         {
-            list<double> between_layers_weights(n*former_layer_n, 5.123456789); // initiate weights at 0 // could init at random (tests needed)
+            list<double> between_layers_weights(n*former_layer_n, 0.0); // initiate weights at 0 // could init at random (tests needed)
             this->interlayer_weights.push_back(between_layers_weights);
             list<double> layer_biases(n ,0.0);
             this->n_bias_layers.push_back(layer_biases);
@@ -44,15 +45,15 @@ double NetworkClass::error(double computed_output, double desired_output)
 /* derivatives */
 double NetworkClass::dCost_bias(double computed_output, double desired_output)
 {
-    double dC_dO = computed_output-desired_output;
-    double dO_dZ = desired_output * (1 - desired_output);
-    double dC_dZ = dC_dO * dO_dZ;
+    double dC_dA = 2*(computed_output-desired_output);
+    double dA_dZ = desired_output * (1 - desired_output); // derivative for the sigmoid function !
+    double dC_dZ = dC_dA * dA_dZ;
     return dC_dZ;
 }
 
-double NetworkClass::dCost_weight(double dC_dZ, double former_neuron_output)
+double NetworkClass::dCost_weight(double dC_dZ, double former_neuron_a)
 {
-    double dC_dW = dC_dZ * former_neuron_output;
+    double dC_dW = dC_dZ * former_neuron_a;
 }
 
 
@@ -143,8 +144,6 @@ void NetworkClass::backprop(list<double> desired_output)
             }
         }
     }
-    
-    
 }
 
 void NetworkClass::train_on_batch(list<list<double>> training_input, list<list<double>> desired_output)
@@ -159,9 +158,17 @@ void NetworkClass::load_nn(string file_path)
     fstream file;
 
     file.open(file_path, fstream::in);
-    string line;
     if (file.is_open())
     {
+        this->interlayer_weights.clear(); // remove fomer neuronal structure
+        this->n_bias_layers.clear();
+        this->n_activ_layer.clear();
+        this->layer_format.clear();
+
+        uint load_switch = 0;
+        string line;
+
+        list<double> arguments;
         while (getline(file, line))
         {
             string word = "";
@@ -175,12 +182,55 @@ void NetworkClass::load_nn(string file_path)
                 }
                 else
                 {
-                    if (word.at(0) != '#')
+                    if (word.at(0) == '-')
                     {
-                        cout<<setprecision(10)<<stod(word)<<str_len<<"\n";
+                        cout<<"Loading : "<<word<<"\n";
+                        load_switch++;
                     }
+                    else if (word.at(0) != '#')
+                    {
+                        arguments.push_back(stod(word));
+                    
+                        if (c == ';')
+                        {
+                            switch (load_switch)
+                            {
+                                case 1:
+                                {
+                                    list<double>::iterator arg_it = arguments.begin();
+                                    for(;arg_it!=arguments.end();arg_it++) this->layer_format.push_back((int)(*arg_it));
+                                    
+                                    /* initialize lists */
+                                    list<uint>::iterator format_it = this->layer_format.begin();
+                                    for (;format_it!=this->layer_format.end(); format_it++)
+                                    {
+                                        uint n = *format_it;
+                                        list<double> layer_activations(n ,0.0); // add n activations of 0
+                                        this->n_activ_layer.push_back(layer_activations);
+                                    }
+                                }
+                                    break;
+                                case 2:
+                                {
+                                    this->interlayer_weights.push_back(arguments);
+                                }
+                                    break;
+                                case 3:
+                                {
+                                    this->n_bias_layers.push_back(arguments);
+                                }
+                                    break;
+                                
+                                default:
+                                    break;
+                            }
+                            arguments.clear();
+                        }
+                    }
+                    
                     word = "";
                 }
+                
             }
         }
         file.close();
@@ -193,10 +243,20 @@ void NetworkClass::save_nn(string file_path)
     file.open(file_path,fstream::out);
     if (file.is_open())
     {
-
+        // - start of section, # comment (reader skips the line)
         file << "#START_NN_SAVE;\n";
+        file << "-START_FORMAT;\n";
+        list<uint>::iterator NL = this->layer_format.begin();
+        for (;NL!=this->layer_format.end();)
+        {
+            file << to_string(*NL);
+            NL++;
+            if (NL!=this->layer_format.end()) file << ',';
+            else file << ";\n";
+        }
+        file << "#END_SPECIF;\n";
 
-        file << "#START_WEIGHTS;\n";
+        file << "-START_WEIGHTS;\n";
         list<list<double>>::iterator WL = this->interlayer_weights.begin();
         for (;WL!=this->interlayer_weights.end(); WL++)
         {
@@ -206,11 +266,11 @@ void NetworkClass::save_nn(string file_path)
                 file << setprecision(10) << *w;
                 w++;
                 if (w!=WL->end()) file << ',';
+                else file << ";\n";
             }
-            file << ";\n";
         }
         file << "#END_WEIGHTS;\n";
-        file << "#START_BIASES;\n";
+        file << "-START_BIASES;\n";
         list<list<double>>::iterator BL = this->n_bias_layers.begin();
         for (;BL!=this->n_bias_layers.end(); BL++)
         {
@@ -220,11 +280,10 @@ void NetworkClass::save_nn(string file_path)
                 file << setprecision(10) << *b;
                 b++;
                 if (b!=BL->end()) file << ',';
+                else file << ";\n";
             }
-            file << ";\n";
         }
         file << "#END_BIASES;\n";
-
         file << "#END_NN_SAVE;\n";
 
         file.close();
