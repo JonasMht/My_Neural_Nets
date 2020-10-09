@@ -1,26 +1,70 @@
-IDIR =../include
-CC=g++
-CFLAGS=-I$(IDIR)
-
-ODIR=.
-LDIR =../lib
-
-LIBS=
-
-_DEPS = main.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
-
-_OBJ = main.o network.o root.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+TARGET = nn_exe
 
 
-$(ODIR)/%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+CC = g++
+CFLAGS = -Wall
 
-main: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+CFLAGS += -std=c11 -pedantic -pedantic-errors
+CFLAGS += -Wall -Wextra -Werror
 
-.PHONY: clean
 
+
+# repertoires
+INCLDIR = include
+SRCDIR = src
+DEPDIR = dep
+OBJDIR = obj
+BINDIR = bin
+DISTDIR = dist
+SAVDIR = saves
+
+# Fichiers
+SRCS = $(wildcard $(SRCDIR)/*.cpp)
+HEADERS = $(wildcard $(INCLDIR)/*.h)
+# Ne marche que dans un répertoire "plat"
+# SRCS = $(shell find . -type f -name "*.cpp")
+# Pour trouver les sources dans une arborescence de fichiers.
+DEPS = $(patsubst $(SRCDIR)/%.cpp, $(DEPDIR)/%.d, $(SRCS))
+OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
+BIN = $(BINDIR)/$(TARGET)
+
+.PHONY: all
+all: dir $(BIN)
+
+.PHONY: dir # si les dossiers n'existent pas, créez les
+dir:
+	@mkdir -p $(SRCDIR) $(DEPDIR) $(OBJDIR) $(BINDIR) $(DISTDIR) $(SAVDIR)
+
+
+$(BIN): $(OBJS)
+	$(CC) -o $@ $^
+
+$(DEPDIR)/%.d $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CC) $(SRCDIR)/$*.cpp \
+	-c -o $(OBJDIR)/$*.o \
+	-I $(INCLDIR) \
+	-MMD \
+	-MT "$(DEPDIR)/$*.d $(OBJDIR)/$*.o" \
+	-MF $(DEPDIR)/$*.d
+
+
+.PHONY: run # dit que cette cible n'est pas un fichier
+run:
+	./$(BINDIR)/$(TARGET)
+
+.PHONY: cr # dit que cette cible n'est pas un fichier
+cr: # compile and run
+	make all
+	make run
+	
+
+.PHONY: dist # dit que cette cible n'est pas un fichier
+dist: # créer une distribution des ".tar.xz" avec les codes sources et le doxyfile uniquement
+	tar -cJf $(DISTDIR)/archive.tar.xz $(SRCS) $(HEADERS) makefile
+
+
+.PHONY: clean # dit que cette cible n'est pas un fichier
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+	@rm -rf $(DEPDIR)/** $(OBJDIR)/** $(BINDIR)/** $(DISTDIR)/**
+
+# amélioration : prendre en compte les changements dans les header

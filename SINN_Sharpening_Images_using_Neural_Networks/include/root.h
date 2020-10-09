@@ -6,7 +6,10 @@
 #include <math.h>
 #include <time.h>
 #include <list>
+#include <vector>
 #include <iomanip> // for lossless double to string conversion
+#include <assert.h> // error checking library in c++
+
 
 using namespace std;
 
