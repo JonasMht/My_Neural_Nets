@@ -72,5 +72,6 @@ git_send:
 	make clean
 	git add *
 	git commit -a -m "automatic commit"+date
-
+	git push
+	
 # amélioration : prendre en compte les changements dans les header
