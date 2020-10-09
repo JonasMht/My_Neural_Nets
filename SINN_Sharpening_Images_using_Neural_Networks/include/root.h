@@ -9,7 +9,7 @@
 #include <vector>
 #include <iomanip> // for lossless double to string conversion
 #include <assert.h> // error checking library in c++
-
+#include <stdlib.h>
 
 using namespace std;
 
@@ -23,5 +23,7 @@ double sigmoid(double x);
 double dSigmoid(double x);
 
 void print_double_list(list<double> lst);
+
+void showVectorVals(string label, vector<double> &v);
 
 #endif

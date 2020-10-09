@@ -32,7 +32,7 @@ all: dir $(BIN)
 
 .PHONY: dir # si les dossiers n'existent pas, créez les
 dir:
-	@mkdir -p $(SRCDIR) $(DEPDIR) $(OBJDIR) $(BINDIR) $(DISTDIR) $(SAVDIR)
+	@mkdir -p $(INCLDIR) $(SRCDIR) $(DEPDIR) $(OBJDIR) $(BINDIR) $(DISTDIR) $(SAVDIR)
 
 
 $(BIN): $(OBJS)

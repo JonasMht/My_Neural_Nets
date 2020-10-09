@@ -20,3 +20,14 @@ void print_double_list(list<double> lst)
 	}
 	cout<<"]\n";
 }
+
+
+void showVectorVals(string label, vector<double> &v)
+{
+	cout << label << " ";
+	for (uint i = 0; i < v.size(); ++i)
+	{
+		cout << v[i]<< " ";
+	}
+	cout << endl;
+}

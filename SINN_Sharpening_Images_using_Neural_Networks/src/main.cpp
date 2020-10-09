@@ -20,20 +20,77 @@ int main()
 {
 	clock_t start = clock();
 
+	// Image testing part
+	string filePath = "pic.ppm";
+	fstream file;
+
+	file.open(filePath, fstream::out);
+	uint w = 500, h = 100;
+	file << "P3" << endl;
+	file << w << " " << h << endl;
+	file << "255" << endl;
+
+
+	//TrainingData trainingData("trainingSamples");
+
 	vector<uint> topology;
-	topology.push_back(3);
 	topology.push_back(2);
+	topology.push_back(5);
+	topology.push_back(5);
 	topology.push_back(1);
+	//trainingData.getTopology(topology);
 	Net myNet(topology);
 
-	vector<double> inputVals;
-	myNet.feedForward(inputVals);
+	vector<double> inputVals, targetVals, resultVals;
+	int trainingPass = 0;
 
-	vector<double> targetVals;
-	myNet.backProp(targetVals);
+	while (trainingPass<50000)
+	{
+		++trainingPass;
+		cout << endl << "Pass " <<trainingPass;
+		inputVals.clear();
+		targetVals.clear();
+		uint a, b, c;
+		a = (rand()/(double)RAND_MAX) > .5;
+		b = (rand()/(double)RAND_MAX) > .5;
+		c = (!a && b) || (a && !b);
 
-	vector<double> resultVals;
-	myNet.getResults(resultVals);
+		inputVals.push_back(a);
+		inputVals.push_back(b);
+		targetVals.push_back(a);
+
+		// Get new imput data and feed it forward
+		/*if (trainingData.getNextInputs(inputVals) != topology[0])
+		{
+			break;
+		}*/
+		showVectorVals(": Inputs:", inputVals);
+		myNet.feedForward(inputVals);
+
+		// Collect the net's actual results
+		myNet.getResults(resultVals);
+		showVectorVals("Outputs:", resultVals);
+		
+		// training the net what the outputs should have been
+		/*trainingData.getTargetOutputs(targetVals);*/
+		showVectorVals("Targets:", targetVals);
+		assert(targetVals.size() == topology.back());
+
+		myNet.backProp(targetVals);
+
+		// report how wzll the training is working, averaged over recent error
+		cout << "Net recent average error: "
+			<< myNet.getRecentAverageError() << endl;
+
+		uint grad = (uint) 255-255*myNet.getRecentAverageError();
+		file << grad << " " << grad << " " << grad <<endl;
+
+	}
+
+	file.close();
+
+	cout << endl << "Done\n";
+
 	/*
 	list<uint> layer_format; // {5,16,16,5} each element represents a layer and the value the amount of neurons
 	layer_format.push_back(2);
