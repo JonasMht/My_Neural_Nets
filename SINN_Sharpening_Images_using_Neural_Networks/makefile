@@ -1,5 +1,5 @@
 TARGET = nn_exe
-DATE := $(shell date +"%m_%d_%y at %H:%M:%S")
+DATE := $(shell date +"%m/%d/%Y at %H:%M:%S")
 
 
 CC = g++
@@ -70,7 +70,7 @@ clean:
 git_send:
 	make clean
 	git add *
-	git commit -a -m "Automatic commit,$(DATE)"
+	git commit -a -m "Automatic commit, $(DATE)"
 	git push
 
 # amélioration : prendre en compte les changements dans les header
