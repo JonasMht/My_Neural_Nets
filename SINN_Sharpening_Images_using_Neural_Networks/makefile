@@ -7,7 +7,7 @@ CFLAGS = -Wall
 CFLAGS += -std=c11 -pedantic -pedantic-errors
 CFLAGS += -Wall -Wextra -Werror
 
-
+DATE := $(date +"%m_%d_%y at %H:%M:%S")
 
 # repertoires
 INCLDIR = include
@@ -71,7 +71,7 @@ clean:
 git_send:
 	make clean
 	git add *
-	git commit -a -m "automatic commit"+date
+	git commit -a -m "Automatic commit, "$(DATE)
 	git push
-	
+
 # amélioration : prendre en compte les changements dans les header
