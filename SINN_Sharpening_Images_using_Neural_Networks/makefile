@@ -67,4 +67,10 @@ dist: # créer une distribution des ".tar.xz" avec les codes sources et le doxyf
 clean:
 	@rm -rf $(DEPDIR)/** $(OBJDIR)/** $(BINDIR)/** $(DISTDIR)/**
 
+.PHONY: git_send # dit que cette cible n'est pas un fichier
+git_send:
+	make clean
+	git add *
+	git commit -a -m "automatic commit"+date
+
 # amélioration : prendre en compte les changements dans les header

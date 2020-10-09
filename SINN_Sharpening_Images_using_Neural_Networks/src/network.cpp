@@ -349,9 +349,23 @@ void Net::backProp(const vector<double> &targetVals)
 
 	// Calculate output layer gradients
 
-	for 
+	for (uint n = 0; n < (outputLayer.size() - 1); ++n)
+	{
+		outputLayer[n].calculateOuptutGradients(this->targetVals[n]);
+	}
 
 	// Calculate gradients on hidden layers
+	
+	for (uint layerNum = (this->m_layers.size() - 2); layerNum > 0; --layerNum) // Loop through the front layers
+	{
+		Layer &hiddenLayer = this->m_layers[layerNum];
+		Layer &nextLayer = this->m_layers[layerNum + 1];
+
+		for (uint n = 0; n < hiddenLayer.size(); ++n)
+		{
+			hiddenLayer[n].calcHiddenGradients(nextLayer);
+		}
+	}
 
 	// For all layers from outputs to first hidden layer,
 	// update conenction weights
