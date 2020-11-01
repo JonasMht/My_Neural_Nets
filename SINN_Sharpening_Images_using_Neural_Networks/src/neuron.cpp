@@ -7,7 +7,7 @@ Neuron::Neuron(uint numOutputs, uint index)
 {
 	for (uint c = 0; c < numOutputs; ++c)
 	{
-		Connection conn;
+		Connection conn{0.0, 0.0};
 		conn.weight = (rand()/(double)RAND_MAX); // could be random
 		this->m_outputWeights.push_back(conn);
 	}
@@ -87,11 +87,11 @@ void Neuron::updateInputWeights(vector<Neuron> &prevLayer)
 			// Individual inout, magnified by the gradient and training rate:
 			this->eta
 			* neuron.getOutputVal()
-			* this->m_gradient
+			* this->m_gradient;
 			// Alpha add momentum = a fraction of the previous delta weight
 			+ this->alpha
 			* oldDeltaWeight;
-
+			
 		neuron.m_outputWeights[this->m_index].deltaWeight = newDeltaWeight;
 		neuron.m_outputWeights[this->m_index].weight += newDeltaWeight;
 	}

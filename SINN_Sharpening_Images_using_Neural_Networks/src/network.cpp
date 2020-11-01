@@ -1,5 +1,122 @@
 #include "network.h"
 
+
+Net::Net(const vector<uint> &topology)
+{
+	uint numLayers = topology.size();
+	for (uint layerNum = 0; layerNum < numLayers; ++layerNum)
+	{
+		this->m_layers.push_back(Layer());
+		uint numOutputs = layerNum == (topology.size() - 1) ? 0 : topology[layerNum + 1]; // find the number of neurons in the next layer (if it exists)
+
+		// We have made a new Layer, now fill it with neurons,
+		// and add a bias neuron to the layer as the last element;
+		for (uint neuronNum = 0; neuronNum <= topology[layerNum]; ++neuronNum)
+		{
+			this->m_layers.back().push_back(Neuron(numOutputs, neuronNum));
+			cout << "New neuron made!" << endl;
+		}
+
+		this->m_recentAverageError = 0;
+		this->m_recentAverageSmoothingFactor = .1; // what is this???
+	}
+
+	// Force the bias node's output value to 1.0. It's the last neuron created above
+	this->m_layers.back().back().setOutputVal(1.0);
+}
+
+void Net::feedForward(const vector<double> &inputVals)
+{
+	//assert(inputVals = m_layers[0].size() - 1); // c++ error check
+
+	// Assign the inout values int o the input neuron
+	for (uint i = 0; i < inputVals.size(); ++i)
+	{
+		this->m_layers[0][i].setOutputVal(inputVals[i]);
+	}
+
+	// Forward propagate
+	for (uint layerNum = 1; layerNum < this->m_layers.size(); ++layerNum)
+	{
+		Layer &prevLayer = m_layers[layerNum - 1]; // by refference (works like a copy but is a reference to the original)
+		for (uint n = 0; n < (m_layers[layerNum].size() - 1); ++n)
+		{
+			m_layers[layerNum][n].feedForward(prevLayer);
+		}
+	}
+}
+
+void Net::backProp(const vector<double> &targetVals)
+{
+
+	// Calculate overall net error (RMS (Root Mean Square Error) of output neuron errors)
+	Layer &outputLayer = this->m_layers.back();
+	this->m_error = 0.0;
+	for (uint n = 0; n < (outputLayer.size() - 1); ++n)
+	{
+		double delta = targetVals[n] - outputLayer[n].getOutputVal(); // difference between wanted output and actual output
+		this->m_error += delta * delta;
+	}
+	this->m_error /= outputLayer.size() - 1; // get average error squared
+	this->m_error = sqrt(this->m_error);	 // RMS
+
+	// Implement a recent average mesurement: (how well the net did over all the sets until then)
+
+	this->m_recentAverageError = (this->m_recentAverageError * this->m_recentAverageSmoothingFactor + this->m_error) / (this->m_recentAverageSmoothingFactor + 1.0);
+	//this->m_recentAverageError = (this->m_recentAverageError * this->m_recentAverageSmoothingFactor + this->m_error) / (this->m_recentAverageSmoothingFactor + 1.0);
+
+	// Calculate output layer gradients
+
+	for (uint n = 0; n < (outputLayer.size() - 1); ++n)
+	{
+		outputLayer[n].calcOutputGradients(targetVals[n]);
+	}
+
+	// Calculate gradients on hidden layers
+
+	for (uint layerNum = (this->m_layers.size() - 2); layerNum > 0; --layerNum) // Loop through the front layers
+	{
+		Layer &hiddenLayer = this->m_layers[layerNum];
+		Layer &nextLayer = this->m_layers[layerNum + 1];
+
+		for (uint n = 0; n < hiddenLayer.size(); ++n)
+		{
+			hiddenLayer[n].calcHiddenGradients(nextLayer);
+		}
+	}
+
+	// For all layers from outputs to first hidden layer,
+	// update conenction weights
+
+	for (uint layerNum = this->m_layers.size() - 1; layerNum > 0; --layerNum)
+	{
+		Layer &layer = this->m_layers[layerNum];
+		Layer &prevLayer = this->m_layers[layerNum - 1];
+
+		for (uint n = 0; n < (layer.size() - 1); ++n)
+		{
+			layer[n].updateInputWeights(prevLayer);
+		}
+	}
+}
+
+void Net::getResults(vector<double> &resultVals) const
+{
+	resultVals.clear();
+
+	for (uint n = 0; n < (this->m_layers.back().size() - 1); ++n)
+	{
+		resultVals.push_back(this->m_layers.back()[n].getOutputVal());
+	}
+}
+
+double Net::getRecentAverageError() const
+{
+	return this->m_recentAverageError;
+}
+
+/*
+
 NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
 {
 	this->layer_format = layer_format;
@@ -8,11 +125,11 @@ NetworkClass::NetworkClass(list<uint> layer_format, double learning_rate)
 	for (auto i = layer_format.begin(); i != layer_format.end(); i++)
 	{
 		uint n = *i;
-		/* add neurons to layer */
+		// add neurons to layer 
 		list<double> layer_activations(n, 0.0); // add a neurons of activation 0
 		this->m_activ_layer.push_back(layer_activations);
 
-		/* add weights between layers */
+		// add weights between layers 
 		if (former_layer_n != 0) // if it isn't the first layer
 		{
 			list<double> betweem_layers_weights(n * former_layer_n, 0.0); // initiate weights at 0 // could init at random (tests needed)
@@ -57,7 +174,7 @@ double NetworkClass::cost(list<double> computed_output, list<double> desired_out
 	return c;
 }
 
-/* derivatives */
+// derivatives 
 double NetworkClass::dCost_bias(double computed_output, double desired_output)
 {
 	double dC_dA = 2 * (computed_output - desired_output);
@@ -145,7 +262,7 @@ void NetworkClass::traim_om_batch(list<list<double>> training_input, list<list<d
 {
 }
 
-/* Save management */
+// Save management 
 void NetworkClass::load_nn(string file_path)
 {
 	fstream file;
@@ -194,7 +311,7 @@ void NetworkClass::load_nn(string file_path)
 								for (; arg_it != arguments.end(); arg_it++)
 									this->layer_format.push_back((int)(*arg_it));
 
-								/* initialize lists */
+								// initialize lists 
 								list<uint>::iterator format_it = this->layer_format.begin();
 								for (; format_it != this->layer_format.end(); format_it++)
 								{
@@ -289,110 +406,5 @@ void NetworkClass::save_nn(string file_path)
 	}
 }
 
-Net::Net(const vector<uint> &topology)
-{
-	uint numLayers = topology.size();
-	for (uint layerNum = 0; layerNum < numLayers; ++layerNum)
-	{
-		this->m_layers.push_back(Layer());
-		uint numOutputs = layerNum == (topology.size() - 1) ? 0 : topology[layerNum + 1]; // find the number of neurons in the next layer (if it exists)
+*/
 
-		// We have made a new Layer, now fill it with neurons,
-		// and add a bias neuron to the layer as the last element;
-		for (uint neuronNum = 0; neuronNum <= topology[layerNum]; ++neuronNum)
-		{
-			this->m_layers.back().push_back(Neuron(numOutputs, neuronNum));
-			cout << "New neuron made!" << endl;
-		}
-	}
-
-	// Force the bias node's output value to 1.0. It's the last neuron created above
-	this->m_layers.back().back().setOutputVal(1.0);
-}
-
-void Net::feedForward(const vector<double> &inputVals)
-{
-	//assert(inputVals = m_layers[0].size() - 1); // c++ error check
-
-	// Assign the inout values int o the input neuron
-	for (uint i = 0; i < inputVals.size(); ++i)
-	{
-		this->m_layers[0][i].setOutputVal(inputVals[i]);
-	}
-
-	// Forward propagate
-	for (uint layerNum = 1; layerNum < this->m_layers.size(); ++layerNum)
-	{
-		Layer &prevLayer = m_layers[layerNum - 1]; // by refference (works like a copy but is a reference to the original)
-		for (uint n = 0; n < (m_layers[layerNum].size() - 1); ++n)
-		{
-			m_layers[layerNum][n].feedForward(prevLayer);
-		}
-	}
-}
-
-void Net::backProp(const vector<double> &targetVals)
-{
-	// Calculate overall net error (RMS (Root Mean Square Error) of output neuron errors)
-	Layer &outputLayer = this->m_layers.back();
-	this->m_error = 0.0;
-	for (uint n = 0; n < (outputLayer.size() - 1); ++n)
-	{
-		double delta = targetVals[n] - outputLayer[n].getOutputVal(); // difference between wanted output and actual output
-		this->m_error += delta * delta;
-	}
-	this->m_error /= outputLayer.size() - 1; // get average error squared
-	this->m_error = sqrt(m_error);			 // RMS
-
-	// Implement a recent average mesurement: (how well the net did over all the sets until then)
-	this->m_recentAverageError = (this->m_recentAverageError * this->m_recentAverageSmoothingFactor + this->m_error) / (this->m_recentAverageSmoothingFactor + 1.0);
-
-	// Calculate output layer gradients
-
-	for (uint n = 0; n < (outputLayer.size() - 1); ++n)
-	{
-		outputLayer[n].calcOutputGradients(targetVals[n]);
-	}
-
-	// Calculate gradients on hidden layers
-
-	for (uint layerNum = (this->m_layers.size() - 2); layerNum > 0; --layerNum) // Loop through the front layers
-	{
-		Layer &hiddenLayer = this->m_layers[layerNum];
-		Layer &nextLayer = this->m_layers[layerNum + 1];
-
-		for (uint n = 0; n < hiddenLayer.size(); ++n)
-		{
-			hiddenLayer[n].calcHiddenGradients(nextLayer);
-		}
-	}
-
-	// For all layers from outputs to first hidden layer,
-	// update conenction weights
-
-	for (uint layerNum = this->m_layers.size() - 1; layerNum > 0; --layerNum)
-	{
-		Layer &layer = this->m_layers[layerNum];
-		Layer &prevLayer = this->m_layers[layerNum - 1];
-
-		for (uint n = 0; n < (layer.size() - 1); ++n)
-		{
-			layer[n].updateInputWeights(prevLayer);
-		}
-	}
-}
-
-void Net::getResults(vector<double> &resultVals) const
-{
-	resultVals.clear();
-
-	for (uint n = 0; n < (this->m_layers.back().size() - 1); ++n)
-	{
-		resultVals.push_back(this->m_layers.back()[n].getOutputVal());
-	}
-}
-
-double Net::getRecentAverageError() const
-{
-	return this->m_recentAverageError;
-}

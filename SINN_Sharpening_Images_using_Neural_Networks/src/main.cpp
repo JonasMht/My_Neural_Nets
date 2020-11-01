@@ -20,12 +20,14 @@ int main()
 {
 	clock_t start = clock();
 
+	const uint MAX_PASSES = 50000;
+
 	// Image testing part
 	string filePath = "pic.ppm";
 	fstream file;
 
 	file.open(filePath, fstream::out);
-	uint w = 500, h = 100;
+	uint w = sqrt(50000), h = sqrt(50000);
 	file << "P3" << endl;
 	file << w << " " << h << endl;
 	file << "255" << endl;
@@ -34,29 +36,34 @@ int main()
 	//TrainingData trainingData("trainingSamples");
 
 	vector<uint> topology;
-	topology.push_back(2);
-	topology.push_back(5);
-	topology.push_back(5);
-	topology.push_back(1);
+	topology.push_back(4);
+	topology.push_back(8);
+	topology.push_back(4);
 	//trainingData.getTopology(topology);
 	Net myNet(topology);
 
 	vector<double> inputVals, targetVals, resultVals;
 	int trainingPass = 0;
 
-	while (trainingPass<50000)
+	while (trainingPass<MAX_PASSES)
 	{
 		++trainingPass;
 		cout << endl << "Pass " <<trainingPass;
 		inputVals.clear();
 		targetVals.clear();
-		uint a, b, c;
-		a = (rand()/(double)RAND_MAX) > .5;
-		b = (rand()/(double)RAND_MAX) > .5;
-		c = (!a && b) || (a && !b);
+		double a, b, c, d;
+		a = ((rand()/(double)RAND_MAX)) > .5;
+		b = ((rand()/(double)RAND_MAX)) > .5;
+		c = ((rand()/(double)RAND_MAX)) > .5;
+		d = ((rand()/(double)RAND_MAX)) > .5;
 
 		inputVals.push_back(a);
 		inputVals.push_back(b);
+		inputVals.push_back(c);
+		inputVals.push_back(d);
+		targetVals.push_back(d);
+		targetVals.push_back(c);
+		targetVals.push_back(b);
 		targetVals.push_back(a);
 
 		// Get new imput data and feed it forward

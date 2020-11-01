@@ -5,7 +5,24 @@
 
 typedef vector<Neuron> Layer;
 
+class Net
+{
+public:
+	Net(const vector<uint> &topology); // constructor
+	void feedForward(const vector<double> &inputVals); // (&) pass the reference
+	void backProp(const vector<double> &targetVals); // Net learning part
+	void getResults(vector<double> &resultVals) const; //c onst correctness, cannot be called by a non const function of the class
+	double getRecentAverageError() const; // get average over a given number of trainings
+private:
+	vector<Layer> m_layers; // m_layer[layerNum][neuronNum]
+	double m_error;
+	double m_recentAverageError;
+	double m_recentAverageSmoothingFactor;
 
+};
+
+
+/*
 class NetworkClass
 {
 private:
@@ -18,7 +35,7 @@ private:
 	// weights for a given layer: each neuron from the second layer, dot product the neurons of the first layer.
 	
 
-	/*averaged change of each parameter to affect at the end of a training session with training batches (mini)*/
+	//averaged change of each parameter to affect at the end of a training session with training batches (mini)
 	list<list<double>> m_bias_layers_change; // average change to the biases
 	list<list<double>> interlayer_weights_change; // average change to the weights
 
@@ -40,32 +57,15 @@ public:
 	void backprop(list<double> desired_output); // backprop the nn for an awaited result using the cost function changing the weight.
 	void traim_om_batch(list<list<double>> training_input, list<list<double>> desired_output); // train the nn on a mini batch using backprop.
 
-	/* Save management */
-	/*
-	File format:
-	lines about weight parameters
-	lines about the bias parameters,
-	*/
+	// Save management 
+	// File format:
+	// lines about weight parameters
+	// lines about the bias parameters,
 
 	void load_nn(string file_path);
 	void save_nn(string file_path);
 
 };
-
-class Net
-{
-public:
-	Net(const vector<uint> &topology); // constructor
-	void feedForward(const vector<double> &inputVals); // (&) pass the reference
-	void backProp(const vector<double> &targetVals); // Net learning part
-	void getResults(vector<double> &resultVals) const; //c onst correctness, cannot be called by a non const function of the class
-	double getRecentAverageError() const;
-private:
-	vector<Layer> m_layers; // m_layer[layerNum][neuronNum]
-	double m_error;
-	double m_recentAverageError;
-	double m_recentAverageSmoothingFactor;
-
-};
+*/
 
 #endif

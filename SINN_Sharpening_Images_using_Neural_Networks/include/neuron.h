@@ -1,12 +1,12 @@
-#ifndef NEUROm_H
-#define NEUROm_H
+#ifndef NEURON_H
+#define NEURON_H
 
 #include "trainingData.h"
 
 struct Connection
 {
 	double weight;
-	double deltaWeight;
+	double deltaWeight; // last change to the weight
 };
 
 
@@ -28,9 +28,9 @@ private:
 	static double transferFunctionDerivative(double x);
 	double sumDOW(const vector<Neuron> &nextLayer) const;
 	double m_outputVal;
+	double m_gradient; //
 	uint m_index;
 	vector<Connection> m_outputWeights;
-	double m_gradient; //
 };
 
 #endif
