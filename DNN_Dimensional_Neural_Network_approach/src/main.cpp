@@ -12,6 +12,12 @@ Created by: Jonas Mehtali, 09/2020.
 Important note: create a neural network that corrects a given rectangle and patch multiple of them together to work on larger images.
 */
 
+/*
+Note:
+to convert an image without compression
+convert foo.ppm -compress none bar.ppm
+*/
+
 #include "network.h"
 
 typedef struct {Net *n; double rank=0;} netRanking;
@@ -29,13 +35,13 @@ void test_and_rank(vector<netRanking> &Nets)
 	{
 		for (int j=0; j<100; ++j)
 		{
-			bool b1 =rand() % 2;
-			//bool b2 =rand() % 2;
+			double b1 =rand() / (double)RAND_MAX;
+			double b2 =rand() / (double)RAND_MAX;
 			vector<double> inputVals;
 			inputVals.push_back(b1);
-			//inputVals.push_back(b2);
+			inputVals.push_back(b2);
 			vector<double> targetVals;
-			targetVals.push_back(!b1);
+			targetVals.push_back(b1>b2);
 
 			Nets[neuronRank].n->feedForward(inputVals, targetVals);
 		}
@@ -57,14 +63,31 @@ int main()
 
 	srand ( time(NULL) ); // rand seed
 
+	const uint MAX_PASSES = 1000;
+
+	// Image testing part
+	string filePath = "pic.ppm";
+	fstream file;
+
+	file.open(filePath, fstream::out);
+	uint w = sqrt(MAX_PASSES), h = sqrt(MAX_PASSES);
+	file << "P3" << endl;
+	file << w << " " << h << endl;
+	file << "255" << endl;
+
 
 	// create topology
 	vector<uint> topology;
+	topology.push_back(2);
+	topology.push_back(16);
+	topology.push_back(16);
 	topology.push_back(1);
-	topology.push_back(8);
-	topology.push_back(8);
-	topology.push_back(8);
-	topology.push_back(1);
+
+
+	vector<uint> color = unit_to_rgb(0.255255255);
+	double c = rgb_to_unit(color);
+	color = unit_to_rgb(c);
+	cout << "r: "<< color[0]<< " g: " <<color[1]<<" b: "<<color[2]<<endl;
 
 	vector<netRanking> Nets;
 	for (int i=0; i<50; ++i)
@@ -77,9 +100,9 @@ int main()
 	
 	
 	
-	for (int i=0; i<500; ++i)
+	for (int i=0; i<MAX_PASSES; ++i)
 	{
-		for(uint neuronRank = 2 ;neuronRank<Nets.size();++neuronRank)
+		for(uint neuronRank = 5 ;neuronRank<Nets.size();++neuronRank)
 		{
 			// Mutation by rank (previous error)
 			Nets[neuronRank].n->mutate(rand_double(-Nets[neuronRank].rank*100.0, Nets[neuronRank].rank*100.0));
@@ -87,38 +110,47 @@ int main()
 
 		test_and_rank(Nets);
 
-		if (i%100==0) cout <<" best rank :"<< Nets.begin()->rank<< endl;
+		if (i%100==0) cout <<" best rank at pass "<< i<< " :"<< Nets.begin()->rank<<endl;
 
-		for(uint nr = 2 ;nr<Nets.size();++nr)
+		// draw a pixel
+		uint grad = (uint) 255-255*(1 / (1 + exp(-Nets.begin()->rank*500 + 3) ));
+		file << grad << " " << grad << " " << grad <<endl;
+
+		for(uint nr = 5 ;nr<Nets.size();++nr)
 		{
-			Nets[nr].n = new Net(Nets[nr%2].n);
-			Nets[nr].rank = Nets[nr%2].rank;
+			delete Nets[nr].n;
+			Nets[nr].n = new Net(Nets[nr%5].n);
+			Nets[nr].rank = Nets[nr%5].rank;
 		}
 
 	}
 
+	file.close();
+
 	// test the best net
 	for (int j=0; j<100; ++j)
 	{
-		bool b1 =rand() % 2;
-		//bool b2 =rand() % 2;
+		double b1 =rand() / (double)RAND_MAX;
+		double b2 =rand() / (double)RAND_MAX;
 		vector<double> inputVals;
 		inputVals.push_back(b1);
-		//inputVals.push_back(b2);
+		inputVals.push_back(b2);
 		vector<double> targetVals;
-		targetVals.push_back(!b1);
+		targetVals.push_back(b1>b2);
 
 		Nets[0].n->feedForward(inputVals, targetVals);
-		cout <<" for " << b1 << " the output is "<< Nets[0].n->getOutput()[0] <<endl;
+		cout <<" for " << b1 << " and " <<b2 << " the output is "<< Nets[0].n->getOutput()[0] <<endl;
 	}
 
 
-
+	for(uint nr = 0 ;nr<5;++nr)
+	{
+	  cout << nr << " - Rank: " << Nets[nr].rank << endl;
+    }
 	// free the allocated memory
 	for(uint nr = 0 ;nr<Nets.size();++nr)
 	{
       Net *n = Nets[nr].n;
-	  cout << "Rank: " << Nets[nr].rank << endl;
 	  delete n;
     }
 

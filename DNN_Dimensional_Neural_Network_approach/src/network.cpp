@@ -20,8 +20,9 @@ Net::Net(const vector<uint> &topology)
 			this->layers.back().push_back(Neuron(numOutputs, neuronNum)); // New neuron created
 		}
 
+		// No more need for a bias neuron
 		// Force the bias node's output value to 1.0. It's the last neuron created above
-		this->layers.back().back().setOutputVal(1.0);
+		//this->layers.back().back().setOutputVal(1.0);
 	}
 }
 
@@ -36,17 +37,23 @@ Net::Net(const Net *original)
 
 void Net::mutate(double change)
 {
+	bool bMutation = rand_bool(); // Decides if the weight or bias is changed
+
+	// Chose a random neuron
 	uint layer = rand_uint(this->layers.size()-1); // minus the output layer
 	uint neuron = rand_uint(this->layers[layer].size());
-	uint num_outputWeights = this->layers[layer][neuron].outputWeights.size();
-	/*if (num_outputWeights>1) // if there there is more than just a bias
-	{
-		uint outputWeight = rand_uint(num_outputWeights-1); // minus the bias
-		this->layers[layer][neuron].outputWeights[outputWeight].weight += change;
-	}*/
 
-	uint outputWeight = rand_uint(num_outputWeights);
-	this->layers[layer][neuron].outputWeights[outputWeight].weight += change;
+	if (bMutation)
+	{
+		uint num_outputWeights = this->layers[layer][neuron].outputWeights.size();
+		uint outputWeight = rand_uint(num_outputWeights);
+		this->layers[layer][neuron].outputWeights[outputWeight] += change;
+	}
+	else
+	{
+		this->layers[layer][neuron].add_to_bias(change*1000);
+	}
+	
 
 }
 

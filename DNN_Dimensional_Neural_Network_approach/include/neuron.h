@@ -3,13 +3,6 @@
 
 #include "root.h"
 
-struct Connection
-{
-	double weight;
-	double deltaWeight; // last change to the weight
-};
-
-
 class Neuron// forward reference to Neuron (not implemented yet)
 {
 private:
@@ -20,17 +13,20 @@ private:
 	double sumDOW(const vector<Neuron> &nextLayer) const;
 	double outputVal;
 	double gradient; //
+	double bias;
 	uint index;
 	
 public:
-	vector<Connection> outputWeights;
+	vector<double> outputWeights;
 	Neuron(uint numOutputs, uint index);
 	void setOutputVal(double val);
 	double getOutputVal() const; // const does not modify the inner structure of the class
 	void feedForward(vector<Neuron> &prevLayer);
-	void calcOutputGradients(double targetVal);
-	void calcHiddenGradients(const vector<Neuron> &nextLayer);
-	void updateInputWeights(vector<Neuron> &prevLayer);
+	
+	void add_to_bias(double dBias){this->bias += dBias;}
+	//void calcOutputGradients(double targetVal);
+	//void calcHiddenGradients(const vector<Neuron> &nextLayer);
+	//void updateInputWeights(vector<Neuron> &prevLayer);
 };
 
 #endif

@@ -25,6 +25,11 @@ using namespace std;
 typedef unsigned int uint;
 
 /**
+ * \brief Random bool
+ */
+bool rand_bool();
+
+/**
  * \brief Random unisgned integer between 0 and n-1.
  */
 uint rand_uint(uint n);
@@ -43,5 +48,20 @@ double dSigmoid(double x);
 void print_double_list(list<double> lst);
 
 void showVectorVals(string label, vector<double> &v);
+
+/**
+ * \brief Load the color unit values of each pixel of a ppm image.
+ */
+vector<uint> load_ppm(string file_path);
+
+/**
+ * \brief Translate the rgb color to a unique double.
+ */
+double rgb_to_unit(vector<uint> rgb_color);
+
+/**
+ * \brief Translate unit color to RGB vector.
+ */
+vector<uint> unit_to_rgb(double unit);
 
 #endif

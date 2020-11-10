@@ -7,11 +7,10 @@ Neuron::Neuron(uint numOutputs, uint index)
 {
 	for (uint c = 0; c < numOutputs; ++c)
 	{
-		Connection conn{0.0, 0.0};
-		conn.weight = (rand()/(double)RAND_MAX); // could be random
-		this->outputWeights.push_back(conn);
+		double weight = (rand()/(double)RAND_MAX); // Assign a random weight
+		this->outputWeights.push_back(weight);
 	}
-
+	this->bias = 0; // Shoud test to assign a random bias?
 	this->index = index;
 	
 }
@@ -38,7 +37,7 @@ double Neuron::sumDOW(const vector<Neuron> &nextLayer) const
 
 	for (uint n = 0; n < (nextLayer.size() - 1); ++n)
 	{
-		sum += this->outputWeights[n].weight * nextLayer[n].gradient;
+		sum += this->outputWeights[n] * nextLayer[n].gradient;
 	}
 
 	return sum;
@@ -55,12 +54,13 @@ void Neuron::feedForward(vector<Neuron> &prevLayer)
 	for (uint n = 0; n < prevLayer.size(); ++n)
 	{
 		sum += prevLayer[n].getOutputVal() * 
-			prevLayer[n].outputWeights[index].weight;
+			prevLayer[n].outputWeights[index];
 	}
 
-	this->outputVal = this->transferFunction(sum);
+	this->outputVal = this->transferFunction(sum + this->bias);
 }
 
+/*
 void Neuron::calcOutputGradients(double targetVal)
 {
 	double delta = targetVal - outputVal;
@@ -72,6 +72,7 @@ void Neuron::calcHiddenGradients(const vector<Neuron> &nextLayer)
 	double dow = sumDOW(nextLayer); // D of the weights of the next layer
 	this->gradient = dow * this->transferFunctionDerivative(this->outputVal);
 }
+
 
 void Neuron::updateInputWeights(vector<Neuron> &prevLayer)
 {
@@ -96,3 +97,4 @@ void Neuron::updateInputWeights(vector<Neuron> &prevLayer)
 		neuron.outputWeights[this->index].weight += newDeltaWeight;
 	}
 }
+*/
