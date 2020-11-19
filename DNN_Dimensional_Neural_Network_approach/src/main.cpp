@@ -41,7 +41,7 @@ void test_and_rank(vector<netRanking> &Nets)
 			inputVals.push_back(b1);
 			inputVals.push_back(b2);
 			vector<double> targetVals;
-			targetVals.push_back(b1>b2);
+			targetVals.push_back(b1*b2);
 
 			Nets[neuronRank].n->feedForward(inputVals, targetVals);
 		}
@@ -63,7 +63,7 @@ int main()
 
 	srand ( time(NULL) ); // rand seed
 
-	const uint MAX_PASSES = 1000;
+	const uint MAX_PASSES = 10000;
 
 	// Image testing part
 	string filePath = "pic.ppm";
@@ -79,8 +79,8 @@ int main()
 	// create topology
 	vector<uint> topology;
 	topology.push_back(2);
-	topology.push_back(16);
-	topology.push_back(16);
+	topology.push_back(5);
+	topology.push_back(10);
 	topology.push_back(1);
 
 
@@ -105,7 +105,8 @@ int main()
 		for(uint neuronRank = 5 ;neuronRank<Nets.size();++neuronRank)
 		{
 			// Mutation by rank (previous error)
-			Nets[neuronRank].n->mutate(rand_double(-Nets[neuronRank].rank*100.0, Nets[neuronRank].rank*100.0));
+			Nets[neuronRank].n->mutate(rand_double(-10.0 , 10.0));
+			//Nets[neuronRank].rank
 		}
 
 		test_and_rank(Nets);
@@ -136,10 +137,10 @@ int main()
 		inputVals.push_back(b1);
 		inputVals.push_back(b2);
 		vector<double> targetVals;
-		targetVals.push_back(b1>b2);
+		targetVals.push_back(b1*b2);
 
 		Nets[0].n->feedForward(inputVals, targetVals);
-		cout <<" for " << b1 << " and " <<b2 << " the output is "<< Nets[0].n->getOutput()[0] <<endl;
+		cout <<" for " << b1 << "*" <<b2 << " = "<< Nets[0].n->getOutput()[0] <<endl;
 	}
 
 

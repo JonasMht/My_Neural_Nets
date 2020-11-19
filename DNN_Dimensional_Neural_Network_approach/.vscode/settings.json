@@ -1,0 +1,15 @@
+{
+	"files.associations": {
+		"iostream": "cpp",
+		"*.tcc": "cpp",
+		"list": "cpp",
+		"array": "cpp",
+		"memory": "cpp",
+		"istream": "cpp",
+		"tuple": "cpp",
+		"utility": "cpp",
+		"ostream": "cpp",
+		"random": "cpp",
+		"new": "cpp"
+	}
+}

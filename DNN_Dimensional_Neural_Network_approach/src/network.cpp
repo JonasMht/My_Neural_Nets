@@ -51,9 +51,8 @@ void Net::mutate(double change)
 	}
 	else
 	{
-		this->layers[layer][neuron].add_to_bias(change*1000);
+		this->layers[layer][neuron].add_to_bias(change);
 	}
-	
 
 }
 
